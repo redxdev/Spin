@@ -17,5 +17,10 @@ namespace Thread.Parser
         {
             builder.Append(Text);
         }
+        
+        public override string ToString()
+        {
+            return Text;
+        }
     }
 }

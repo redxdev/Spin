@@ -19,6 +19,18 @@ namespace Thread
         private Dictionary<string, ExpressionBlock> _blocks = new Dictionary<string, ExpressionBlock>();
         private Dictionary<string, ExpressionFunction> _functions = new Dictionary<string, ExpressionFunction>();
         private Dictionary<string, CommandFunction> _commands = new Dictionary<string, CommandFunction>();
+
+        private Dictionary<string, string> _variables = new Dictionary<string, string>();
+
+        /// <summary>
+        /// Resets non-library data in this sequence. That means variables and lines, not blocks/functions/commands.
+        /// </summary>
+        public void ResetSequence()
+        {
+            _variables.Clear();
+            CurrentLine = null;
+            NextLine = null;
+        }
         
         public void AddBlock(string name, ExpressionBlock func)
         {
@@ -33,6 +45,13 @@ namespace Thread
         public void AddCommand(string name, CommandFunction func)
         {
             _commands.Add(name, func);
+        }
+
+        public string ExecuteExpression(IExpressionElement expression)
+        {
+            var builder = new StringBuilder();
+            expression.Execute(this, builder);
+            return builder.ToString();
         }
 
         public void ExecuteBlock(string name, StringBuilder builder, IExpressionElement subElement, params string[] arguments)
@@ -125,6 +144,31 @@ namespace Thread
         public void RegisterStandardLibrary()
         {
             RegisterAssembly(this.GetType().Assembly);
+        }
+
+        public string GetVariable(string name)
+        {
+            if (!TryGetVariable(name, out string value))
+            {
+                throw new SequenceVariableException($"Undefined variable \"{name}\"");
+            }
+
+            return value;
+        }
+
+        public bool TryGetVariable(string name, out string value)
+        {
+            return _variables.TryGetValue(name, out value);
+        }
+
+        public void SetVariable(string name, string value)
+        {
+            _variables[name] = value;
+        }
+
+        public bool ContainsVariable(string name)
+        {
+            return _variables.ContainsKey(name);
         }
     }
 }

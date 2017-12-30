@@ -1,33 +1,75 @@
 ﻿grammar Thread;
 
-@parser::header
-{
-	#pragma warning disable 3021
-}
-
 @lexer::header
 {
 	#pragma warning disable 3021
 }
 
+@parser::header
+{
+	#pragma warning disable 3021
+
+	using System.Text;
+}
+
+@parser::members
+{
+	public static int IGNORED_CHANNEL = 1;
+	protected void handleIgnoredChannel(List<IExpressionElement> elements) {
+		int idx = CurrentToken.TokenIndex - 1;
+		StringBuilder builder = new StringBuilder();
+		var oldTokens = new List<IToken>();
+		while (idx >= 0)
+		{
+			var token = _input.Get(idx);
+			if (token.Channel != IGNORED_CHANNEL)
+				break;
+
+			oldTokens.Add(token);
+			--idx;
+		}
+
+		if (oldTokens.Count == 0)
+			return;
+
+		oldTokens.Reverse();
+		foreach (var token in oldTokens)
+		{
+			builder.Append(token.Text);
+		}
+
+		elements.Add(new TextElement(builder.ToString()));
+	}
+}
+
 // Parser
 
-expression
-	:
-	(	expression_function
-	|	expression_block
-	|	.
-	)*?
+expression returns [CollectionElement element]
+	locals [List<IExpressionElement> subElements]
+	: {$subElements = new List<IExpressionElement>(); $element = new CollectionElement($subElements); handleIgnoredChannel($subElements);}
+	(	
+		(	expression_function {$subElements.Add($expression_function.element);}
+		|	expression_block	{$subElements.Add($expression_block.element);}
+		|	any_text			{$subElements.Add(new TextElement($any_text.text));}
+		)
+		{handleIgnoredChannel($subElements);}
+	)+
 	;
 
-expression_block
-	:	BEGIN_BLOCK name=IDENT (args=arguments)? END_BLOCK
-		subexpr=expression
+expression_block returns [BlockElement element]
+	locals [List<string> argList, IExpressionElement subExpression]
+	:	{$argList = new List<string>(); $subExpression = null;}
+		BEGIN_BLOCK name=IDENT (args=arguments {$argList = $args.args;})? END_BLOCK
+		(subexpr=expression {$subExpression = $subexpr.element;})?
 		BEGIN_BLOCK END END_BLOCK
+		{$element = new BlockElement($name.text, $argList, $subExpression);}
 	;
 
-expression_function
-	:	BEGIN_BLOCK BEGIN_BLOCK name=IDENT (args=arguments)? END_BLOCK END_BLOCK
+expression_function returns [FunctionElement element]
+	locals [List<string> argList]
+	:	{$argList = new List<string>();}
+		BEGIN_BLOCK BEGIN_BLOCK name=IDENT (args=arguments {$argList = $args.args;})? END_BLOCK END_BLOCK
+		{$element = new FunctionElement($name.text, $argList);}
 	;
 
 arguments returns [List<string> args]
@@ -38,11 +80,18 @@ arguments returns [List<string> args]
 
 raw_value returns [string value]
 	:	IDENT {$value = $IDENT.text;}
+	|	NUMBER {$value = $NUMBER.text;}
 	|	string {$value = $string.value;}
 	;
 
 string returns [string value]
 	:	STRING {$value = $STRING.text.Substring(1, $STRING.text.Length-2);}
+	;
+
+any_text returns [string value]
+	locals [StringBuilder builder]
+	:	{$builder = new StringBuilder();}
+		(ch=. {$builder.Append($ch.text);})+?
 	;
 
 // Lexer
@@ -84,12 +133,16 @@ IDENT
 	:	[a-zA-Z_] [a-zA-Z0-9_]*
 	;
 
+NUMBER
+	:	'-'? [0-9]+ ('.' [0-9]+)?
+	;
+
 COMMENT
-	:	'#' ~[\r\n]* -> channel(HIDDEN)
+	:	'#' ~[\r\n]* -> channel(1)
 	;
 
 WS
-	:	[ \n\t\r]+ -> channel(HIDDEN)
+	:	[ \n\t\r]+ -> channel(1)
 	;
 
 TEXT

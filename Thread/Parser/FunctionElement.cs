@@ -4,27 +4,25 @@ using System.Text;
 
 namespace Thread.Parser
 {
-    public class BlockElement : IExpressionElement
+    public class FunctionElement : IExpressionElement
     {
         public string Name { get; set; }
         public IEnumerable<string> Arguments { get; set; }
-        public IExpressionElement SubExpression { get; set; }
 
-        public BlockElement(string name, IEnumerable<string> arguments, IExpressionElement subExpression)
+        public FunctionElement(string name, IEnumerable<string> arguments)
         {
             Name = name;
             Arguments = arguments;
-            SubExpression = subExpression;
         }
 
         public void Execute(Sequence sequence, StringBuilder builder)
         {
-            sequence.ExecuteBlock(Name, builder, SubExpression, Arguments.ToArray());
+            sequence.ExecuteFunction(Name, builder, Arguments.ToArray());
         }
-
+        
         public override string ToString()
         {
-            return $"{{{Name} {string.Join(", ", Arguments)}}}{SubExpression}{{/}}";
+            return $"{{{{{Name} {string.Join(", ", Arguments)}}}}}";
         }
     }
 }

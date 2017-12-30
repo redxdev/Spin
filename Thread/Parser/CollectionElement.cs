@@ -23,5 +23,19 @@ namespace Thread.Parser
                 }
             }
         }
+        
+        public override string ToString()
+        {
+            if (SubElements == null)
+                return string.Empty;
+
+            var builder = new StringBuilder();
+            foreach (var element in SubElements)
+            {
+                builder.Append(element.ToString());
+            }
+
+            return builder.ToString();
+        }
     }
 }

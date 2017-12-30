@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Thread;
+using Thread.Parser;
 
 namespace ThreadExample
 {
@@ -10,6 +8,11 @@ namespace ThreadExample
     {
         static void Main(string[] args)
         {
+            var sequence = new Sequence();
+            sequence.RegisterStandardLibrary();
+
+            var expr = ParserUtilities.ParseExpressionString("   hello, {if_true human}human{/} {{set human true}} oh yeah #blah blah blah");
+            Console.WriteLine(sequence.ExecuteExpression(expr));
         }
     }
 }

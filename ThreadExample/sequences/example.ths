@@ -1,0 +1,71 @@
+# Example Sequence
+
+# Initialization commands
+# Any line that isn't part of dialogue and starts with "@" is interpreted as a command.
+# "begin" is an alias for "next", they both do the same thing.
+@begin hello1
+
++hello1
+Hello world! This is an example dialogue sequence.
++> next hello2
+
++hello2
+This is another piece of dialogue.
++> next format1
+
++format1
+The name of each piece of dialogue is found after the first \+. The dialogue itself is
+taken from the first non-empty non-command line after that, and goes until the next \+.
++> next format2
+
++format2
+You can use a small degree of [i]bbcode[/i] for formatting.
++> next commands1
+
++commands1
+Commands are additional functions that can be called over the course of a dialogue. The most
+common one is "next", which sets the next piece of dialogue.
++> next commands2
+
++commands2
+Commands are run immediately upon activating a piece of dialogue. As such, if you want a command
+to run only upon ending a dialogue, you need a placeholder dialogue that has the "skip" command.
++> next skip1
+
++commands3
++> skipto commands4
+
++commands4
+Commands are given on each line after a > character.
++> next expr1
+
++expr1
+Expressions are inline markup in dialogue that allows the interpreter to change what dialogue says.
+
+{if_unset foo}
+For example, this bit of dialogue has set a variable "foo" to true. The next piece of dialogue actually links
+back to here, but this line will change as a result.
+{/}
+{if_true foo}
+Foo is now {v foo}.
+{/}
++
+> set foo true
+> next expr1
+> {if_true foo}next expr2{/}
+
++expr2
+Expressions can also be used in commands themselves. Technically, expressions just modify text. An expression
+pre-processor runs on both dialogue and commands before anything happens, and then the result is parsed by
+the sequence parser.
++> next expr3
+
++expr3
+Expressions can also contain functions. Functions use a {{noop}} different syntax, but can be used for a variety
+of things.
++> next load1
+
++load1
+Sequence files are always loaded as a whole. In order to break up sequences, you can split a single logical
+sequence into files, or share files between sequences. To do this, you simply have to call the "seq" command.
++> seq sequences/example2.ths

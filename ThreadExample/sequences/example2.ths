@@ -1,0 +1,13 @@
+# See example.seq first!
+
+@begin:load2
+
++load2
+We are now in a new sequence file. The old sequence file has been unloaded to free up memory. This
+also means that we can reuse names for pieces of dialogue, though depending on your use case you
+may not want to for your own sanity.
+
+In addition to loading a sequence normally, we are also able to specify the specific piece of
+dialogue to use in that sequence file just by adding a "next" command.
++> seq sequences/example3.ths
+> next load3

@@ -1,0 +1,13 @@
+# See example.seq and example2.seq first.
+
+# You'll notice we don't have a "begin" or "next" command to start the file.
+# If this sequence was loaded on its own, no dialogue will play.
+# If we load this sequence via example2.seq, the "load3" dialogue will play.
+
++load3
+And now we're in the example3 sequence file!
++> next end
+
++end
+That's it for this short dialogue sequence tutorial. Have fun!
++

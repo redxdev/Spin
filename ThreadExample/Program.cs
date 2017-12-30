@@ -8,10 +8,10 @@ namespace ThreadExample
     {
         static void Main(string[] args)
         {
-            var sequence = new Sequence();
+            var sequence = new Sequence(new DictionaryBackend());
             sequence.RegisterStandardLibrary();
-
-            var expr = ParserUtilities.ParseExpressionString("   hello, {if_true human}human{/} {{set human true}} oh yeah #blah blah blah");
+            
+            var expr = ParserUtilities.ParseExpressionString("{h} {{s name, Sam}}    asdfasdf {{s mood, cool}}{/}Hello, {{v name}}! You look {{v mood}}.");
             Console.WriteLine(sequence.ExecuteExpression(expr));
         }
     }

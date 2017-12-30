@@ -20,14 +20,18 @@ namespace Thread
         private Dictionary<string, ExpressionFunction> _functions = new Dictionary<string, ExpressionFunction>();
         private Dictionary<string, CommandFunction> _commands = new Dictionary<string, CommandFunction>();
 
-        private Dictionary<string, string> _variables = new Dictionary<string, string>();
+        private IVariableBackend _backend;
+
+        public Sequence(IVariableBackend backend)
+        {
+            _backend = backend;
+        }
 
         /// <summary>
-        /// Resets non-library data in this sequence. That means variables and lines, not blocks/functions/commands.
+        /// Resets line data in this sequence.
         /// </summary>
         public void ResetSequence()
         {
-            _variables.Clear();
             CurrentLine = null;
             NextLine = null;
         }
@@ -158,17 +162,17 @@ namespace Thread
 
         public bool TryGetVariable(string name, out string value)
         {
-            return _variables.TryGetValue(name, out value);
+            return _backend.TryGetVariable(name, out value);
         }
 
         public void SetVariable(string name, string value)
         {
-            _variables[name] = value;
+            _backend.SetVariable(name, value);
         }
 
         public bool ContainsVariable(string name)
         {
-            return _variables.ContainsKey(name);
+            return _backend.ContainsVariable(name);
         }
     }
 }

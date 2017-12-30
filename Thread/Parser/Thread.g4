@@ -15,6 +15,8 @@
 @parser::members
 {
 	public static int IGNORED_CHANNEL = 1;
+	// This is not ideal, but in certain situations we actually do want to be able to
+	// parse through whitespace.
 	protected void handleIgnoredChannel(List<IExpressionElement> elements) {
 		int idx = CurrentToken.TokenIndex - 1;
 		StringBuilder builder = new StringBuilder();
@@ -61,7 +63,7 @@ expression_block returns [BlockElement element]
 	:	{$argList = new List<string>(); $subExpression = null;}
 		BEGIN_BLOCK name=IDENT (args=arguments {$argList = $args.args;})? END_BLOCK
 		(subexpr=expression {$subExpression = $subexpr.element;})?
-		BEGIN_BLOCK END END_BLOCK
+		BEGIN_BLOCK SLASH END_BLOCK
 		{$element = new BlockElement($name.text, $argList, $subExpression);}
 	;
 
@@ -91,7 +93,14 @@ string returns [string value]
 any_text returns [string value]
 	locals [StringBuilder builder]
 	:	{$builder = new StringBuilder();}
-		(ch=. {$builder.Append($ch.text);})+?
+		(
+			ESCAPE {$builder.Append($ESCAPE.text.Substring(1));}
+		|	not_begin_block {$builder.Append($not_begin_block.text);}
+		)+?
+	;
+
+not_begin_block
+	:	~BEGIN_BLOCK
 	;
 
 // Lexer
@@ -108,8 +117,13 @@ COMMAND_BEGIN
 	:	'>'
 	;
 
-END
+SLASH
 	:	'/'
+	;
+
+ESCAPE
+	:	'\\{'
+	|	'\\}'
 	;
 
 BEGIN_BLOCK

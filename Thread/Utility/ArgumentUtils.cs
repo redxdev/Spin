@@ -21,7 +21,7 @@ namespace Thread.Utility
 
         public static void Between(string name, object[] args, int min, int max)
         {
-            if (max >= min)
+            if (max <= min)
                 throw new ArgumentException($"Expected min < max, got {min} and {max}");
 
             if (min == 0 && args == null)

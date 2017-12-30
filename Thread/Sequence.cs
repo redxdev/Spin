@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using Thread.Attributes;
 using Thread.Parser;
 
@@ -13,27 +14,152 @@ namespace Thread
         public delegate void ExpressionFunction(Sequence sequence, StringBuilder builder, object[] arguments);
         public delegate void CommandFunction(Sequence sequence, object[] arguments);
 
+        private string _currentText = null;
         public Line? CurrentLine { get; private set; }
         public Line? NextLine { get; private set; }
+        public ThreadDocument CurrentDocument { get; private set; }
+
+        /// <summary>
+        /// When true, line breaks will be removed except when there are multiple in a row.
+        /// </summary>
+        public bool AutomaticLineBreaks { get; set; } = true;
+
+        /// <summary>
+        /// When true, extra whitespace at the beginning and end of text will be removed.
+        /// </summary>
+        public bool AutomaticWhitespaceTrim { get; set; } = true;
 
         private Dictionary<string, ExpressionBlock> _blocks = new Dictionary<string, ExpressionBlock>();
         private Dictionary<string, ExpressionFunction> _functions = new Dictionary<string, ExpressionFunction>();
         private Dictionary<string, CommandFunction> _commands = new Dictionary<string, CommandFunction>();
 
         private IVariableBackend _backend;
+        private IDocumentLoader _loader;
 
-        public Sequence(IVariableBackend backend)
+        public Sequence(IVariableBackend backend, IDocumentLoader loader)
         {
             _backend = backend;
+            _loader = loader;
         }
 
         /// <summary>
         /// Resets line data in this sequence.
         /// </summary>
-        public void ResetSequence()
+        public void ResetSequence(bool resetDocument = true)
         {
             CurrentLine = null;
             NextLine = null;
+            _currentText = null;
+
+            if (resetDocument)
+                CurrentDocument = null;
+        }
+
+        public void LoadAndStartDocument(string path)
+        {
+            if (_loader == null)
+            {
+                throw new SequenceDocumentException($"No document loader provided, cannot load \"{path}\"");
+            }
+
+            StartDocument(_loader.LoadDocument(path));
+        }
+
+        public void StartDocument(ThreadDocument document)
+        {
+            CurrentDocument = document;
+
+            if (CurrentDocument != null)
+            {
+                foreach (var expr in CurrentDocument.GetInitialCommands())
+                {
+                    ParsedCommand[] command;
+                    var str = ExecuteExpression(expr);
+                    if (string.IsNullOrWhiteSpace(str))
+                        continue;
+
+                    try
+                    {
+                        command = ParserUtilities.ParseCommandString(str);
+                    }
+                    catch (SequenceParseException e)
+                    {
+                        throw new SequenceException($"Unable to parse \"{str}\" from expression", e);
+                    }
+
+                    ExecuteCommand(command);
+                }
+            }
+        }
+
+        public void StartNextLine()
+        {
+            CurrentLine = NextLine;
+            NextLine = null;
+            _currentText = null;
+            if (!CurrentLine.HasValue)
+                return;
+        }
+
+        public string ExecuteCurrentLine()
+        {
+            if (!CurrentLine.HasValue)
+                return string.Empty;
+
+            _currentText = ExecuteExpression(CurrentLine.Value.PrimaryElement);
+
+            foreach (var expr in CurrentLine.Value.CommandElements)
+            {
+                ParsedCommand[] command;
+                var str = ExecuteExpression(expr);
+                if (string.IsNullOrWhiteSpace(str))
+                    continue;
+
+                try
+                {
+                    command = ParserUtilities.ParseCommandString(str);
+                }
+                catch (SequenceParseException e)
+                {
+                    throw new SequenceException($"Unable to parse \"{str}\" from expression", e);
+                }
+
+                ExecuteCommand(command);
+            }
+
+            return TrimText(_currentText);
+        }
+
+        public string TrimText(string input)
+        {
+            if (AutomaticWhitespaceTrim)
+                input = input.Trim();
+
+            if (AutomaticLineBreaks)
+            {
+                input = string.Join("", input.Split('\n')
+                    .Select(line =>
+                    {
+                        if (!string.IsNullOrWhiteSpace(line))
+                        {
+                            return line.Trim() + " ";
+                        }
+
+                        return "\n";
+                    }));
+            }
+
+            return input;
+        }
+
+        public void SetNextLine(string name)
+        {
+            NextLine = CurrentDocument.GetLine(name);
+        }
+
+        public void SetNextLine(Line? line)
+        {
+            NextLine = line;
         }
         
         public void AddBlock(string name, ExpressionBlock func)
@@ -87,6 +213,19 @@ namespace Thread
             }
 
             command(this, arguments);
+        }
+
+        public void ExecuteCommand(IEnumerable<ParsedCommand> commands)
+        {
+            foreach (var cmd in commands)
+            {
+                ExecuteCommand(cmd);
+            }
+        }
+
+        public void ExecuteCommand(ParsedCommand command)
+        {
+            command.Execute(this);
         }
         
         /// <summary>

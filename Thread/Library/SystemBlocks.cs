@@ -31,8 +31,10 @@ namespace Thread.Library
 
             foreach (var name in arguments.Select(o => Convert.ToString(o, CultureInfo.InvariantCulture)))
             {
-                var value = Convert.ToBoolean(sequence.GetVariable(name), CultureInfo.InvariantCulture);
-                if (!value)
+                if (!sequence.TryGetVariable(name, out object value))
+                    return;
+
+                if (!Convert.ToBoolean(value, CultureInfo.InvariantCulture))
                     return;
             }
 
@@ -46,8 +48,10 @@ namespace Thread.Library
 
             foreach (var name in arguments.Select(o => Convert.ToString(o, CultureInfo.InvariantCulture)))
             {
-                var value = Convert.ToBoolean(sequence.GetVariable(name), CultureInfo.InvariantCulture);
-                if (value)
+                if (!sequence.TryGetVariable(name, out object value))
+                    return;
+
+                if (Convert.ToBoolean(value, CultureInfo.InvariantCulture))
                     return;
             }
 

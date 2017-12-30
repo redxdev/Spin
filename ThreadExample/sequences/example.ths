@@ -1,9 +1,10 @@
 # Example Sequence
 
 # Initialization commands
-# Any line that isn't part of dialogue and starts with "@" is interpreted as a command.
+# A command list at the beginning of a document will be executed when the document is loaded into a
+# sequence.
 # "begin" is an alias for "next", they both do the same thing.
-@begin hello1
+>begin hello1
 
 +hello1
 Hello world! This is an example dialogue sequence.
@@ -16,10 +17,17 @@ This is another piece of dialogue.
 +format1
 The name of each piece of dialogue is found after the first \+. The dialogue itself is
 taken from the first non-empty non-command line after that, and goes until the next \+.
+
+Unless you change settings, linebreaks are removed except in cases where there are multiple.
 +> next format2
 
 +format2
-You can use a small degree of [i]bbcode[/i] for formatting.
+You can add your own formatting processor (like for [i]bbcode[/i]) on top of Thread's system.
++> next format3
+
++format3
+Some symbols can't be used by themselves. Instead, you can either use the echo command ({{e "+"}})
+or put a backslash
 +> next commands1
 
 +commands1
@@ -30,13 +38,15 @@ common one is "next", which sets the next piece of dialogue.
 +commands2
 Commands are run immediately upon activating a piece of dialogue. As such, if you want a command
 to run only upon ending a dialogue, you need a placeholder dialogue that has the "skip" command.
-+> next skip1
++> next commands3
 
 +commands3
-+> skipto commands4
++
+> next commands4
+> skip
 
 +commands4
-Commands are given on each line after a > character.
+Commands are given on each line after a \> character.
 +> next expr1
 
 +expr1
@@ -47,17 +57,15 @@ For example, this bit of dialogue has set a variable "foo" to true. The next pie
 back to here, but this line will change as a result.
 {/}
 {if foo}
-Foo is now {v foo}.
+Foo is now {{v foo}}.
 {/}
 +
-> set foo true
-> next expr1
 > {if foo}next expr2{/}
+> {ifunset foo}set foo true; next expr1{/}
 
 +expr2
-Expressions can also be used in commands themselves. Technically, expressions just modify text. An expression
-pre-processor runs on both dialogue and commands before anything happens, and then the result is parsed by
-the sequence parser.
+Expressions can also be used in commands themselves. Technically, expressions just modify text. The expression parser
+is run before anything happens, and then the result is fed either to the command parser or output as a dialogue line.
 +> next expr3
 
 +expr3
@@ -68,4 +76,4 @@ of things.
 +load1
 Sequence files are always loaded as a whole. In order to break up sequences, you can split a single logical
 sequence into files, or share files between sequences. To do this, you simply have to call the "seq" command.
-+> seq sequences/example2.ths
++> seq "sequences/example2.ths"

@@ -10,6 +10,7 @@
 	#pragma warning disable 3021
 
 	using System.Text;
+	using System.Linq;
 }
 
 @parser::members
@@ -43,9 +44,7 @@
 		var str = builder.ToString();
 		if (trim)
 		{
-			if (str.Contains("\n") || str.Contains("\r"))
-				str = "\n";
-			else if (str.Contains("\t"))
+			if (str.Contains("\t"))
 				str = "\t";
 			else if (str.Contains(" "))
 				str = " ";
@@ -57,13 +56,68 @@
 
 // Parser
 
+//
+// Document
+//
+
+document returns [ThreadDocument doc]
+	locals [List<Line> lines, IExpressionElement[] init]
+	:	{$lines = new List<Line>(); $init = new IExpressionElement[] {};}
+		(command_list {$init = $command_list.elements.ToArray();})?
+		(line {$lines.Add($line.result);})*
+		EOF
+		{$doc = new ThreadDocument($lines.ToArray(), $init);}
+	;
+
+//
+// Lines
+//
+
+line returns [Line result]
+	locals [IExpressionElement primaryElement, IExpressionElement[] commandElements]
+	:	{$primaryElement = new NoopElement(); $commandElements = new IExpressionElement[] {};}
+		LINE_DELIM name=IDENT
+		(expr=expression {$primaryElement = $expr.element;})?
+		LINE_DELIM
+		(command_list {$commandElements = $command_list.elements.ToArray();})?
+		{$result = new Line($name.text, $primaryElement, $commandElements);}
+	;
+
+//
+// Commands
+//
+
+command returns [List<ParsedCommand> commands]
+	:	{$commands = new List<ParsedCommand>();}
+		first=single_command {$commands.Add($first.cmd);}
+		(SEMI next=single_command {$commands.Add($next.cmd);})*
+	;
+
+single_command returns [ParsedCommand cmd]
+	locals [List<object> argList]
+	:	{$argList = new List<object>();}
+		name=IDENT (args=arguments {$argList = $args.args;})?
+		{$cmd = new ParsedCommand($name.text, $argList);}
+	;
+
+command_list returns [List<IExpressionElement> elements]
+	:	{$elements = new List<IExpressionElement>();}
+	(
+		COMMAND_BEGIN expression {$elements.Add($expression.element);}
+	)+
+	;
+
+//
+// Expressions
+//
+
 expression returns [CollectionElement element]
 	locals [List<IExpressionElement> subElements, bool trim, bool previousWasText]
 	: {$subElements = new List<IExpressionElement>(); $element = new CollectionElement($subElements); handleIgnoredChannel($subElements, false);}
 	(	
 		(	expression_function {$subElements.Add($expression_function.element); $trim = true; $previousWasText = false;}
 		|	expression_block	{$subElements.Add($expression_block.element); $trim = true; $previousWasText = false;}
-		|	any_text			{$subElements.Add(new TextElement($any_text.text)); $trim = $previousWasText; $previousWasText = true;}
+		|	any_text			{$subElements.Add(new TextElement($any_text.value)); $trim = $previousWasText; $previousWasText = true;}
 		)
 		{handleIgnoredChannel($subElements, $trim);}
 	)+
@@ -114,13 +168,22 @@ any_text returns [string value]
 			ESCAPE {$builder.Append($ESCAPE.text.Substring(1));}
 		|	not_begin_block {$builder.Append($not_begin_block.text);}
 		)+?
+		{$value = $builder.ToString();}
 	;
 
 not_begin_block
-	:	~BEGIN_BLOCK
+	:	~(BEGIN_BLOCK | LINE_DELIM | ESCAPE | COMMAND_BEGIN)
 	;
 
 // Lexer
+
+ESCAPE
+	:	'\\{'
+	|	'\\}'
+	|	'\\+'
+	|	'\\>'
+	|	'\\\\'
+	;
 
 STRING
 	:	('"' (~('\n' | '\r'))*? '"')
@@ -131,8 +194,8 @@ LINE_DELIM
 	:	'+'
 	;
 
-INIT
-	:	'@'
+SEMI
+	:	';'
 	;
 
 COMMAND_BEGIN
@@ -141,11 +204,6 @@ COMMAND_BEGIN
 
 SLASH
 	:	'/'
-	;
-
-ESCAPE
-	:	'\\{'
-	|	'\\}'
 	;
 
 BEGIN_BLOCK

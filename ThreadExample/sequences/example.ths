@@ -22,7 +22,7 @@ Unless you change settings, linebreaks are removed except in cases where there a
 +> next format2
 
 +format2
-You can add your own formatting processor (like for [i]bbcode[/i]) on top of Thread's system.
+You can add your own markup (like for [i]bbcode[/i]) as well, but that depends on your implementation.
 +> next format3
 
 +format3

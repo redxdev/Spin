@@ -77,7 +77,7 @@ expression_function returns [FunctionElement element]
 arguments returns [List<string> args]
 	:	{$args = new List<string>();}
 		first=raw_value {$args.Add($first.value);}
-		(COMMA next=raw_value {$args.Add($next.value);})*
+		(next=raw_value {$args.Add($next.value);})*
 	;
 
 raw_value returns [string value]
@@ -132,10 +132,6 @@ BEGIN_BLOCK
 
 END_BLOCK
 	:	'}'
-	;
-
-COMMA
-	:	','
 	;
 
 STRING

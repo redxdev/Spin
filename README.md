@@ -5,6 +5,9 @@ dialogue trees, and an interpreter for that format.
 
 The reference interpreter is in C# and should work anywhere C# 7 can be used.
 
+Inspired by [Yarn](https://github.com/InfiniteAmmoInc/Yarn), with a focus on easily editing files
+without having a dedicated editor.
+
 ## Quick Example
 
     # Example Document

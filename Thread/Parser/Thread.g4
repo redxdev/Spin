@@ -17,7 +17,7 @@
 	public static int IGNORED_CHANNEL = 1;
 	// This is not ideal, but in certain situations we actually do want to be able to
 	// parse through whitespace.
-	protected void handleIgnoredChannel(List<IExpressionElement> elements) {
+	protected void handleIgnoredChannel(List<IExpressionElement> elements, bool trim) {
 		int idx = CurrentToken.TokenIndex - 1;
 		StringBuilder builder = new StringBuilder();
 		var oldTokens = new List<IToken>();
@@ -40,27 +40,38 @@
 			builder.Append(token.Text);
 		}
 
-		elements.Add(new TextElement(builder.ToString()));
+		var str = builder.ToString();
+		if (trim)
+		{
+			if (str.Contains("\n") || str.Contains("\r"))
+				str = "\n";
+			else if (str.Contains("\t"))
+				str = "\t";
+			else if (str.Contains(" "))
+				str = " ";
+		}
+
+		elements.Add(new TextElement(str));
 	}
 }
 
 // Parser
 
 expression returns [CollectionElement element]
-	locals [List<IExpressionElement> subElements]
-	: {$subElements = new List<IExpressionElement>(); $element = new CollectionElement($subElements); handleIgnoredChannel($subElements);}
+	locals [List<IExpressionElement> subElements, bool trim, bool previousWasText]
+	: {$subElements = new List<IExpressionElement>(); $element = new CollectionElement($subElements); handleIgnoredChannel($subElements, false);}
 	(	
-		(	expression_function {$subElements.Add($expression_function.element);}
-		|	expression_block	{$subElements.Add($expression_block.element);}
-		|	any_text			{$subElements.Add(new TextElement($any_text.text));}
+		(	expression_function {$subElements.Add($expression_function.element); $trim = true; $previousWasText = false;}
+		|	expression_block	{$subElements.Add($expression_block.element); $trim = true; $previousWasText = false;}
+		|	any_text			{$subElements.Add(new TextElement($any_text.text)); $trim = $previousWasText; $previousWasText = true;}
 		)
-		{handleIgnoredChannel($subElements);}
+		{handleIgnoredChannel($subElements, $trim);}
 	)+
 	;
 
 expression_block returns [BlockElement element]
-	locals [List<string> argList, IExpressionElement subExpression]
-	:	{$argList = new List<string>(); $subExpression = null;}
+	locals [List<object> argList, IExpressionElement subExpression]
+	:	{$argList = new List<object>(); $subExpression = null;}
 		BEGIN_BLOCK name=IDENT (args=arguments {$argList = $args.args;})? END_BLOCK
 		(subexpr=expression {$subExpression = $subexpr.element;})?
 		BEGIN_BLOCK SLASH END_BLOCK
@@ -68,26 +79,32 @@ expression_block returns [BlockElement element]
 	;
 
 expression_function returns [FunctionElement element]
-	locals [List<string> argList]
-	:	{$argList = new List<string>();}
+	locals [List<object> argList]
+	:	{$argList = new List<object>();}
 		BEGIN_BLOCK BEGIN_BLOCK name=IDENT (args=arguments {$argList = $args.args;})? END_BLOCK END_BLOCK
 		{$element = new FunctionElement($name.text, $argList);}
 	;
 
-arguments returns [List<string> args]
-	:	{$args = new List<string>();}
+arguments returns [List<object> args]
+	:	{$args = new List<object>();}
 		first=raw_value {$args.Add($first.value);}
 		(next=raw_value {$args.Add($next.value);})*
 	;
 
-raw_value returns [string value]
+raw_value returns [object value]
 	:	IDENT {$value = $IDENT.text;}
-	|	NUMBER {$value = $NUMBER.text;}
+	|	boolean_value {$value = $boolean_value.value;}
+	|	NUMBER {$value = double.Parse($NUMBER.text);}
 	|	string {$value = $string.value;}
 	;
 
 string returns [string value]
 	:	STRING {$value = $STRING.text.Substring(1, $STRING.text.Length-2);}
+	;
+
+boolean_value returns [bool value]
+	:	BOOL_TRUE {$value = true;}
+	|	BOOL_FALSE {$value = false;}
 	;
 
 any_text returns [string value]
@@ -104,6 +121,11 @@ not_begin_block
 	;
 
 // Lexer
+
+STRING
+	:	('"' (~('\n' | '\r'))*? '"')
+	|	('\'' (~('\n' | '\r'))*? '\'')
+	;
 
 LINE_DELIM
 	:	'+'
@@ -134,9 +156,12 @@ END_BLOCK
 	:	'}'
 	;
 
-STRING
-	:	('"' (~('\n' | '\r'))*? '"')
-	|	('\'' (~('\n' | '\r'))*? '\'')
+BOOL_TRUE
+	:	[Tt][Rr][Uu][Ee]
+	;
+
+BOOL_FALSE
+	:	[Ff][Aa][Ll][Ss][Ee]
 	;
 
 IDENT

@@ -7,10 +7,10 @@ namespace Thread.Parser
     public class BlockElement : IExpressionElement
     {
         public string Name { get; set; }
-        public IEnumerable<string> Arguments { get; set; }
+        public IEnumerable<object> Arguments { get; set; }
         public IExpressionElement SubExpression { get; set; }
 
-        public BlockElement(string name, IEnumerable<string> arguments, IExpressionElement subExpression)
+        public BlockElement(string name, IEnumerable<object> arguments, IExpressionElement subExpression)
         {
             Name = name;
             Arguments = arguments;

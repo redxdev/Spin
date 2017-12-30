@@ -42,17 +42,17 @@ Commands are given on each line after a > character.
 +expr1
 Expressions are inline markup in dialogue that allows the interpreter to change what dialogue says.
 
-{if_unset foo}
+{ifunset foo}
 For example, this bit of dialogue has set a variable "foo" to true. The next piece of dialogue actually links
 back to here, but this line will change as a result.
 {/}
-{if_true foo}
+{if foo}
 Foo is now {v foo}.
 {/}
 +
 > set foo true
 > next expr1
-> {if_true foo}next expr2{/}
+> {if foo}next expr2{/}
 
 +expr2
 Expressions can also be used in commands themselves. Technically, expressions just modify text. An expression

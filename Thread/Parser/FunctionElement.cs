@@ -7,9 +7,9 @@ namespace Thread.Parser
     public class FunctionElement : IExpressionElement
     {
         public string Name { get; set; }
-        public IEnumerable<string> Arguments { get; set; }
+        public IEnumerable<object> Arguments { get; set; }
 
-        public FunctionElement(string name, IEnumerable<string> arguments)
+        public FunctionElement(string name, IEnumerable<object> arguments)
         {
             Name = name;
             Arguments = arguments;

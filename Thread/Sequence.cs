@@ -9,9 +9,9 @@ namespace Thread
 {
     public class Sequence
     {
-        public delegate void ExpressionBlock(Sequence sequence, StringBuilder builder, IExpressionElement subElement, string[] arguments);
-        public delegate void ExpressionFunction(Sequence sequence, StringBuilder builder, string[] arguments);
-        public delegate void CommandFunction(Sequence sequence, string[] arguments);
+        public delegate void ExpressionBlock(Sequence sequence, StringBuilder builder, IExpressionElement subElement, object[] arguments);
+        public delegate void ExpressionFunction(Sequence sequence, StringBuilder builder, object[] arguments);
+        public delegate void CommandFunction(Sequence sequence, object[] arguments);
 
         public Line? CurrentLine { get; private set; }
         public Line? NextLine { get; private set; }
@@ -51,14 +51,15 @@ namespace Thread
             _commands.Add(name, func);
         }
 
-        public string ExecuteExpression(IExpressionElement expression)
+        public string ExecuteExpression(IExpressionElement expression, bool trimResult = true)
         {
             var builder = new StringBuilder();
             expression.Execute(this, builder);
-            return builder.ToString();
+            var result = builder.ToString();
+            return trimResult ? result.Trim() : result;
         }
 
-        public void ExecuteBlock(string name, StringBuilder builder, IExpressionElement subElement, params string[] arguments)
+        public void ExecuteBlock(string name, StringBuilder builder, IExpressionElement subElement, params object[] arguments)
         {
             if (!_blocks.TryGetValue(name, out ExpressionBlock block))
             {
@@ -68,7 +69,7 @@ namespace Thread
             block(this, builder, subElement, arguments);
         }
 
-        public void ExecuteFunction(string name, StringBuilder builder, params string[] arguments)
+        public void ExecuteFunction(string name, StringBuilder builder, params object[] arguments)
         {
             if (!_functions.TryGetValue(name, out ExpressionFunction func))
             {
@@ -78,7 +79,7 @@ namespace Thread
             func(this, builder, arguments);
         }
 
-        public void ExecuteCommand(string name, params string[] arguments)
+        public void ExecuteCommand(string name, params object[] arguments)
         {
             if (!_commands.TryGetValue(name, out CommandFunction command))
             {
@@ -150,9 +151,9 @@ namespace Thread
             RegisterAssembly(this.GetType().Assembly);
         }
 
-        public string GetVariable(string name)
+        public object GetVariable(string name)
         {
-            if (!TryGetVariable(name, out string value))
+            if (!TryGetVariable(name, out object value))
             {
                 throw new SequenceVariableException($"Undefined variable \"{name}\"");
             }
@@ -160,12 +161,12 @@ namespace Thread
             return value;
         }
 
-        public bool TryGetVariable(string name, out string value)
+        public bool TryGetVariable(string name, out object value)
         {
             return _backend.TryGetVariable(name, out value);
         }
 
-        public void SetVariable(string name, string value)
+        public void SetVariable(string name, object value)
         {
             _backend.SetVariable(name, value);
         }

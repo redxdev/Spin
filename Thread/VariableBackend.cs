@@ -7,25 +7,25 @@ namespace Thread
     public interface IVariableBackend
     {
         bool ContainsVariable(string name);
-        bool TryGetVariable(string name, out string value);
-        void SetVariable(string name, string value);
+        bool TryGetVariable(string name, out object value);
+        void SetVariable(string name, object value);
     }
 
     public class DictionaryBackend : IVariableBackend
     {
-        public Dictionary<string, string> Variables { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, object> Variables { get; set; } = new Dictionary<string, object>();
 
         public bool ContainsVariable(string name)
         {
             return Variables.ContainsKey(name);
         }
 
-        public bool TryGetVariable(string name, out string value)
+        public bool TryGetVariable(string name, out object value)
         {
             return Variables.TryGetValue(name, out value);
         }
 
-        public void SetVariable(string name, string value)
+        public void SetVariable(string name, object value)
         {
             Variables[name] = value;
         }

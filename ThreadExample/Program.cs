@@ -11,7 +11,7 @@ namespace ThreadExample
             var sequence = new Sequence(new DictionaryBackend());
             sequence.RegisterStandardLibrary();
             
-            var expr = ParserUtilities.ParseExpressionString("{{s a true}} {{s b true}} {{s c asdf}} {ifeq a b}a = b{/} {ifneq a c}a != c{/}");
+            var expr = ParserUtilities.ParseExpressionString("Hello {{v test}} world! My{{e \"   \"}}   {{v test}}  name is sam.");
             Console.WriteLine(sequence.ExecuteExpression(expr));
         }
     }

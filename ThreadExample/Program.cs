@@ -14,16 +14,14 @@ namespace ThreadExample
             try
             {
                 sequence.LoadAndStartDocument("sequences/example.ths");
-                sequence.StartNextLine();
-                while (sequence.CurrentLine != null)
+                while (sequence.StartNextLine().HasValue)
                 {
                     Console.WriteLine("---");
 
                     var text = sequence.ExecuteCurrentLine();
                     Console.WriteLine(text);
-
-                    Console.ReadKey();
-                    sequence.StartNextLine();
+                    Console.WriteLine("Press enter to continue...");
+                    Console.ReadLine();
                 }
 
                 Console.WriteLine("---");
@@ -35,8 +33,8 @@ namespace ThreadExample
                 Console.WriteLine(e.ToString());
             }
 
-            Console.WriteLine("Press any key to continue...");
-            Console.ReadKey();
+            Console.WriteLine("Press enter to continue...");
+            Console.ReadLine();
         }
     }
 }

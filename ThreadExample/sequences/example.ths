@@ -1,5 +1,7 @@
 # Example Sequence
 
+# Comments start with #
+
 # Initialization commands
 # A command list at the beginning of a document will be executed when the document is loaded into a
 # sequence.
@@ -26,8 +28,11 @@ You can add your own markup (like for [i]bbcode[/i]) as well, but that depends o
 +> next format3
 
 +format3
-Some symbols can't be used by themselves. Instead, you can either use the echo command ({{e "+"}})
-or put a backslash
+Some symbols can't be used by themselves. Instead, you can either use the echo command (example: {{e "+"}})
+or put a backslash (example: \+).
+
+The list of characters that must be escaped are: \+, \>, \#, and \\. Strings in function arguments cannot have
+escape sequences at this time.
 +> next commands1
 
 +commands1

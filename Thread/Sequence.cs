@@ -92,13 +92,12 @@ namespace Thread
             }
         }
 
-        public void StartNextLine()
+        public Line? StartNextLine()
         {
             CurrentLine = NextLine;
             NextLine = null;
             _currentText = null;
-            if (!CurrentLine.HasValue)
-                return;
+            return CurrentLine;
         }
 
         public string ExecuteCurrentLine()

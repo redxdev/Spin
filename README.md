@@ -97,3 +97,9 @@ Finally, you can actually use blocks and functions inside commands:
     > {if bar}next hello3{/}
 
 Since expressions just work with text, you can manipulate commands however you want as long as the result is either just whitespace or a valid command.
+
+## Credits
+
+Thread was created by [Sam Bloomberg](https://xbloom.io).
+
+Thread makes use of [ANTLR 4](https://github.com/antlr/antlr4) for parser and lexer generation.

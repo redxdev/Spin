@@ -116,6 +116,7 @@ expression returns [CollectionElement element]
 	: {$subElements = new List<IExpressionElement>(); $element = new CollectionElement($subElements); handleIgnoredChannel($subElements, false);}
 	(	
 		(	expression_function {$subElements.Add($expression_function.element); $trim = true; $previousWasText = false;}
+		|	expression_variable {$subElements.Add($expression_variable.element); $trim = true; $previousWasText = false;}
 		|	expression_block	{$subElements.Add($expression_block.element); $trim = true; $previousWasText = false;}
 		|	any_text			{$subElements.Add(new TextElement($any_text.value)); $trim = $previousWasText; $previousWasText = true;}
 		)
@@ -139,6 +140,10 @@ expression_function returns [FunctionElement element]
 		{$element = new FunctionElement($name.text, $argList);}
 	;
 
+expression_variable returns [VariableElement element]
+	:	BEGIN_BLOCK variable_value END_BLOCK {$element = new VariableElement($variable_value.value);}
+	;
+
 arguments returns [List<object> args]
 	:	{$args = new List<object>();}
 		first=raw_value {$args.Add($first.value);}
@@ -147,6 +152,7 @@ arguments returns [List<object> args]
 
 raw_value returns [object value]
 	:	IDENT {$value = $IDENT.text;}
+	|	variable_value {$value = $variable_value.value;}
 	|	boolean_value {$value = $boolean_value.value;}
 	|	NUMBER {$value = double.Parse($NUMBER.text);}
 	|	string {$value = $string.value;}
@@ -161,17 +167,21 @@ boolean_value returns [bool value]
 	|	BOOL_FALSE {$value = false;}
 	;
 
+variable_value returns [VariableRef value]
+	:	VAR_BEGIN IDENT {$value = new VariableRef($IDENT.text);}
+	;
+
 any_text returns [string value]
 	locals [StringBuilder builder]
 	:	{$builder = new StringBuilder();}
 		(
 			ESCAPE {$builder.Append($ESCAPE.text.Substring(1));}
-		|	not_begin_block {$builder.Append($not_begin_block.text);}
+		|	not_special_block {$builder.Append($not_special_block.text);}
 		)+?
 		{$value = $builder.ToString();}
 	;
 
-not_begin_block
+not_special_block
 	:	~(BEGIN_BLOCK | LINE_DELIM | ESCAPE | COMMAND_BEGIN)
 	;
 
@@ -183,6 +193,8 @@ ESCAPE
 	|	'\\+'
 	|	'\\>'
 	|	'\\#'
+	|	'\\$'
+	|	'\\"'
 	|	'\\\\'
 	;
 
@@ -205,6 +217,10 @@ COMMAND_BEGIN
 
 SLASH
 	:	'/'
+	;
+
+VAR_BEGIN
+	:	'$'
 	;
 
 BEGIN_BLOCK

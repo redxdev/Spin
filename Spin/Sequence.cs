@@ -294,6 +294,11 @@ namespace Spin
             RegisterAssembly(this.GetType().Assembly);
         }
 
+        public object GetVariable(VariableRef vref)
+        {
+            return GetVariable(vref.Name);
+        }
+
         public object GetVariable(string name)
         {
             if (!TryGetVariable(name, out object value))
@@ -304,9 +309,19 @@ namespace Spin
             return value;
         }
 
+        public bool TryGetVariable(VariableRef vref, out object value)
+        {
+            return TryGetVariable(vref.Name, out value);
+        }
+
         public bool TryGetVariable(string name, out object value)
         {
             return _backend.TryGetVariable(name, out value);
+        }
+
+        public void SetVariable(VariableRef vref, object value)
+        {
+            SetVariable(vref.Name, value);
         }
 
         public void SetVariable(string name, object value)
@@ -314,9 +329,27 @@ namespace Spin
             _backend.SetVariable(name, value);
         }
 
+        public bool ContainsVariable(VariableRef vref)
+        {
+            return ContainsVariable(vref.Name);
+        }
+
         public bool ContainsVariable(string name)
         {
             return _backend.ContainsVariable(name);
+        }
+
+        /// <summary>
+        /// Check if the given input is a variable. If it is, return the value of the variable, otherwise return the input as-is.
+        /// </summary>
+        public object Resolve(object input)
+        {
+            if (input is VariableRef vref)
+            {
+                return GetVariable(vref);
+            }
+
+            return input;
         }
     }
 }

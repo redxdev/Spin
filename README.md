@@ -69,20 +69,21 @@ Commands, blocks, and functions can all be added to a sequence. Attributes are u
 
 Blocks contain further text and are used for things like if statements. Blocks look like this:
 
-    {if foo}
+    {if $foo}
     foo is true!
     {/}
 
 Functions and commands are similar, except that functions can emit text and commands cannot be natively used in
 dialogue. Functions look like this:
 
-    {{v foo}} # prints the value of foo
+    {{v $foo}} # prints the value of foo
+    {$foo} # alternate syntax, this echos the value of variable $foo.
 
 Commands are primarly found after each line of dialogue, and can be used to set what the next line of dialogue is.
 
     +hello1
     Hello, world!
-    +> set foo true
+    +> set $foo true
     > next hello2
 
 `set foo true` and `next hello2` are commands here.
@@ -90,7 +91,7 @@ Commands are primarly found after each line of dialogue, and can be used to set 
 You can call commands inside lines of dialogue as well, though generally you shouldn't need to:
 
     +hello1
-    {{cmd set foo true}} Hello world!
+    {{cmd set $foo true}} Hello world!
     +
 
 Finally, you can actually use blocks and functions inside commands:
@@ -98,8 +99,8 @@ Finally, you can actually use blocks and functions inside commands:
     +hello1
     Hello, world!
     +
-    > {if foo}next hello2{/}
-    > {if bar}next hello3{/}
+    > {if $foo}next hello2{/}
+    > {if $bar}next hello3{/} # the previous two if blocks will actually error unless $foo and $bar were previously set
 
 Since expressions just work with text, you can manipulate commands however you want as long as the result is either just whitespace or a valid command.
 

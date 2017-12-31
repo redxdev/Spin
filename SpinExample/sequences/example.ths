@@ -31,7 +31,7 @@ You can add your own markup (like for [i]bbcode[/i]) as well, but that depends o
 Some symbols can't be used by themselves. Instead, you can either use the echo command (example: {{e "+"}})
 or put a backslash (example: \+).
 
-The list of characters that must be escaped are: \+, \>, \#, and \\. Strings in function arguments cannot have
+The list of characters that must be escaped are: \+, \>, \#, \$, and \\. Strings in function arguments cannot have
 escape sequences at this time.
 +> next commands1
 
@@ -57,16 +57,16 @@ Commands are given on each line after a \> character.
 +expr1
 Expressions are inline markup in dialogue that allows the interpreter to change what dialogue says.
 
-{ifunset foo}
+{ifunset $foo}
 For example, this bit of dialogue has set a variable "foo" to true. The next piece of dialogue actually links
 back to here, but this line will change as a result.
 {/}
-{if foo}
-Foo is now {{v foo}}.
+{ifset $foo}
+Foo is now \"{$foo}\".
 {/}
 +
-> {if foo}next expr2{/}
-> {ifunset foo}set foo true; next expr1{/}
+> {ifset $foo}next expr2{/}
+> {ifunset $foo}set $foo "Hello World!"; next expr1{/}
 
 +expr2
 Expressions can also be used in commands themselves. Technically, expressions just modify text. The expression parser

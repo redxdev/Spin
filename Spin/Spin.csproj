@@ -27,10 +27,10 @@
     <RepositoryUrl>https://github.com/redxdev/Spin</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <Description>Spin is a simple library for dialogue trees designed for use with games. It includes a human-readable file format for writing dialogue, and an extendable interpreter for executing them.</Description>
-    <PackageReleaseNotes>Renamed library to "Spin".</PackageReleaseNotes>
+    <PackageReleaseNotes>Better language support for variables.</PackageReleaseNotes>
     <PackageTags>dialogue gamedev</PackageTags>
-    <Version>0.1.0</Version>
-    <FileVersion>0.1.0</FileVersion>
+    <Version>0.1.1-beta1</Version>
+    <FileVersion>0.1.1.0</FileVersion>
   </PropertyGroup>
 
 </Project>

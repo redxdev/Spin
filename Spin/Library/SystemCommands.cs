@@ -12,7 +12,14 @@ namespace Spin.Library
         public static void Set(Sequence sequence, object[] arguments)
         {
             ArgumentUtils.Count("set", arguments, 2);
-            sequence.SetVariable(Convert.ToString(arguments[0], CultureInfo.InvariantCulture), arguments[1]);
+            if (arguments[0] is VariableRef vref)
+            {
+                sequence.SetVariable(vref, sequence.Resolve(arguments[1]));
+            }
+            else
+            {
+                throw new SequenceVariableException($"Expected a variable for command set, found {arguments[0]}");
+            }
         }
 
         [SequenceCommand("next")]
@@ -20,7 +27,7 @@ namespace Spin.Library
         public static void Next(Sequence sequence, object[] arguments)
         {
             ArgumentUtils.Count("next", arguments, 1);
-            sequence.SetNextLine(Convert.ToString(arguments[0], CultureInfo.InvariantCulture));
+            sequence.SetNextLine(Convert.ToString(sequence.Resolve(arguments[0]), CultureInfo.InvariantCulture));
         }
 
         [SequenceCommand("skip")]
@@ -36,7 +43,7 @@ namespace Spin.Library
         public static void Sequence(Sequence sequence, object[] arguments)
         {
             ArgumentUtils.Count("sequence", arguments, 1);
-            sequence.LoadAndStartDocument(Convert.ToString(arguments[0], CultureInfo.InvariantCulture));
+            sequence.LoadAndStartDocument(Convert.ToString(sequence.Resolve(arguments[0]), CultureInfo.InvariantCulture));
         }
 
         [SequenceCommand("reset")]

@@ -29,12 +29,9 @@ namespace Spin.Library
         {
             ArgumentUtils.Min("if", arguments, 1);
 
-            foreach (var name in arguments.Select(o => Convert.ToString(o, CultureInfo.InvariantCulture)))
+            foreach (var value in arguments.Select(o => sequence.Resolve(o)).Select(o => Convert.ToBoolean(o, CultureInfo.InvariantCulture)))
             {
-                if (!sequence.TryGetVariable(name, out object value))
-                    return;
-
-                if (!Convert.ToBoolean(value, CultureInfo.InvariantCulture))
+                if (!value)
                     return;
             }
 
@@ -46,12 +43,9 @@ namespace Spin.Library
         {
             ArgumentUtils.Min("ifnot", arguments, 1);
 
-            foreach (var name in arguments.Select(o => Convert.ToString(o, CultureInfo.InvariantCulture)))
+            foreach (var value in arguments.Select(o => Convert.ToBoolean(sequence.Resolve(o), CultureInfo.InvariantCulture)))
             {
-                if (!sequence.TryGetVariable(name, out object value))
-                    return;
-
-                if (Convert.ToBoolean(value, CultureInfo.InvariantCulture))
+                if (value)
                     return;
             }
 
@@ -62,7 +56,7 @@ namespace Spin.Library
         public static void IfEq(Sequence sequence, StringBuilder builder, IExpressionElement subElement, object[] arguments)
         {
             ArgumentUtils.Count("ifeq", arguments, 2);
-            var values = arguments.Select(name => sequence.GetVariable(Convert.ToString(name, CultureInfo.InvariantCulture))).ToArray();
+            var values = arguments.Select(o => sequence.Resolve(o)).ToArray();
 
             if (!values[0].Equals(values[1]))
                 return;
@@ -74,7 +68,7 @@ namespace Spin.Library
         public static void IfNeq(Sequence sequence, StringBuilder builder, IExpressionElement subElement, object[] arguments)
         {
             ArgumentUtils.Count("ifneq", arguments, 2);
-            var values = arguments.Select(name => sequence.GetVariable(Convert.ToString(name, CultureInfo.InvariantCulture))).ToArray();
+            var values = arguments.Select(o => sequence.Resolve(o)).ToArray();
 
             if (values[0].Equals(values[1]))
                 return;
@@ -86,20 +80,34 @@ namespace Spin.Library
         public static void IfSet(Sequence sequence, StringBuilder builder, IExpressionElement subElement, object[] arguments)
         {
             ArgumentUtils.Count("ifset", arguments, 1);
-            if (!sequence.ContainsVariable(Convert.ToString(arguments[0], CultureInfo.InvariantCulture)))
-                return;
-
-            subElement.Execute(sequence, builder);
+            if (arguments[0] is VariableRef vref)
+            {
+                if (sequence.ContainsVariable(vref))
+                {
+                    subElement.Execute(sequence, builder);
+                }
+            }
+            else
+            {
+                throw new SequenceVariableException($"Expected a variable for {{ifset}}, found {arguments[0]}");
+            }
         }
 
         [SequenceBlock("ifunset")]
         public static void IfUnset(Sequence sequence, StringBuilder builder, IExpressionElement subElement, object[] arguments)
         {
             ArgumentUtils.Count("ifunset", arguments, 1);
-            if (sequence.ContainsVariable(Convert.ToString(arguments[0], CultureInfo.InvariantCulture)))
-                return;
-
-            subElement.Execute(sequence, builder);
+            if (arguments[0] is VariableRef vref)
+            {
+                if (!sequence.ContainsVariable(vref))
+                {
+                    subElement.Execute(sequence, builder);
+                }
+            }
+            else
+            {
+                throw new SequenceVariableException($"Expected a variable for {{ifunset}}, found {arguments[0]}");
+            }
         }
 
         [SequenceBlock("ifgt")]
@@ -107,23 +115,16 @@ namespace Spin.Library
         {
             ArgumentUtils.Count("ifgt", arguments, 2);
 
-            object firstValue = arguments[0];
-            object secondValue = arguments[1];
+            var firstValue = sequence.Resolve(arguments[0]) as IComparable;
+            var secondValue = sequence.Resolve(arguments[1]) as IComparable;
 
-            if (firstValue is string)
-            {
-                firstValue = sequence.GetVariable((string)firstValue);
-            }
+            if (firstValue == null)
+                throw new SequenceException($"First argument to {{ifgt}} must implement IComparable");
 
-            if (secondValue is string)
-            {
-                secondValue = sequence.GetVariable((string)secondValue);
-            }
+            if (secondValue == null)
+                throw new SequenceException($"Second argument to {{ifgt}} must implement IComparable");
 
-            double firstNum = Convert.ToDouble(firstValue, CultureInfo.InvariantCulture);
-            double secondNum = Convert.ToDouble(secondValue, CultureInfo.InvariantCulture);
-
-            if (firstNum > secondNum)
+            if (firstValue.CompareTo(secondValue) > 0)
             {
                 subElement.Execute(sequence, builder);
             }
@@ -133,24 +134,17 @@ namespace Spin.Library
         public static void IfGte(Sequence sequence, StringBuilder builder, IExpressionElement subElement, object[] arguments)
         {
             ArgumentUtils.Count("ifgte", arguments, 2);
+            
+            var firstValue = sequence.Resolve(arguments[0]) as IComparable;
+            var secondValue = sequence.Resolve(arguments[1]) as IComparable;
 
-            object firstValue = arguments[0];
-            object secondValue = arguments[1];
+            if (firstValue == null)
+                throw new SequenceException($"First argument to {{ifgte}} must implement IComparable");
 
-            if (firstValue is string)
-            {
-                firstValue = sequence.GetVariable((string)firstValue);
-            }
+            if (secondValue == null)
+                throw new SequenceException($"Second argument to {{ifgte}} must implement IComparable");
 
-            if (secondValue is string)
-            {
-                secondValue = sequence.GetVariable((string)secondValue);
-            }
-
-            double firstNum = Convert.ToDouble(firstValue, CultureInfo.InvariantCulture);
-            double secondNum = Convert.ToDouble(secondValue, CultureInfo.InvariantCulture);
-
-            if (firstNum >= secondNum)
+            if (firstValue.CompareTo(secondValue) >= 0)
             {
                 subElement.Execute(sequence, builder);
             }
@@ -161,23 +155,16 @@ namespace Spin.Library
         {
             ArgumentUtils.Count("iflt", arguments, 2);
 
-            object firstValue = arguments[0];
-            object secondValue = arguments[1];
+            var firstValue = sequence.Resolve(arguments[0]) as IComparable;
+            var secondValue = sequence.Resolve(arguments[1]) as IComparable;
 
-            if (firstValue is string)
-            {
-                firstValue = sequence.GetVariable((string)firstValue);
-            }
+            if (firstValue == null)
+                throw new SequenceException($"First argument to {{iflt}} must implement IComparable");
 
-            if (secondValue is string)
-            {
-                secondValue = sequence.GetVariable((string)secondValue);
-            }
+            if (secondValue == null)
+                throw new SequenceException($"Second argument to {{iflt}} must implement IComparable");
 
-            double firstNum = Convert.ToDouble(firstValue, CultureInfo.InvariantCulture);
-            double secondNum = Convert.ToDouble(secondValue, CultureInfo.InvariantCulture);
-
-            if (firstNum < secondNum)
+            if (firstValue.CompareTo(secondValue) < 0)
             {
                 subElement.Execute(sequence, builder);
             }
@@ -186,25 +173,18 @@ namespace Spin.Library
         [SequenceBlock("iflte")]
         public static void IfLte(Sequence sequence, StringBuilder builder, IExpressionElement subElement, object[] arguments)
         {
-            ArgumentUtils.Count("iflte", arguments, 2);
+            ArgumentUtils.Count("iflt", arguments, 2);
 
-            object firstValue = arguments[0];
-            object secondValue = arguments[1];
+            var firstValue = sequence.Resolve(arguments[0]) as IComparable;
+            var secondValue = sequence.Resolve(arguments[1]) as IComparable;
 
-            if (firstValue is string)
-            {
-                firstValue = sequence.GetVariable((string)firstValue);
-            }
+            if (firstValue == null)
+                throw new SequenceException($"First argument to {{iflte}} must implement IComparable");
 
-            if (secondValue is string)
-            {
-                secondValue = sequence.GetVariable((string)secondValue);
-            }
+            if (secondValue == null)
+                throw new SequenceException($"Second argument to {{iflte}} must implement IComparable");
 
-            double firstNum = Convert.ToDouble(firstValue, CultureInfo.InvariantCulture);
-            double secondNum = Convert.ToDouble(secondValue, CultureInfo.InvariantCulture);
-
-            if (firstNum <= secondNum)
+            if (firstValue.CompareTo(secondValue) <= 0)
             {
                 subElement.Execute(sequence, builder);
             }

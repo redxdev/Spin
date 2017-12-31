@@ -11,10 +11,15 @@ namespace Spin.Library
     {
         [SequenceFunction("v")]
         [SequenceFunction("value")]
+        [SequenceFunction("e")]
+        [SequenceFunction("echo")]
         public static void Value(Sequence sequence, StringBuilder builder, object[] arguments)
         {
-            ArgumentUtils.Count("value", arguments, 1);
-            builder.Append(sequence.GetVariable(Convert.ToString(arguments[0], CultureInfo.InvariantCulture)));
+            ArgumentUtils.Min("value", arguments, 1);
+            foreach (var arg in arguments.Select(o => sequence.Resolve(o)))
+            {
+                builder.Append(Convert.ToString(arg, CultureInfo.InvariantCulture));
+            }
         }
 
         [SequenceFunction("s")]
@@ -22,7 +27,14 @@ namespace Spin.Library
         public static void Set(Sequence sequence, StringBuilder builder, object[] arguments)
         {
             ArgumentUtils.Count("set", arguments, 2);
-            sequence.SetVariable(Convert.ToString(arguments[0], CultureInfo.InvariantCulture), arguments[1]);
+            if (arguments[0] is VariableRef vref)
+            {
+                sequence.SetVariable(vref, sequence.Resolve(arguments[1]));
+            }
+            else
+            {
+                throw new SequenceVariableException($"Expected a variable for {{{{set}}}}, found {arguments[0]}");
+            }
         }
 
         /// <summary>
@@ -33,18 +45,7 @@ namespace Spin.Library
         public static void Command(Sequence sequence, StringBuilder builder, object[] arguments)
         {
             ArgumentUtils.Min("cmd", arguments, 1);
-            sequence.ExecuteCommand(Convert.ToString(arguments[0], CultureInfo.InvariantCulture), arguments.ToList().GetRange(1, arguments.Length - 1).ToArray());
-        }
-
-        [SequenceFunction("e")]
-        [SequenceFunction("echo")]
-        public static void Echo(Sequence sequence, StringBuilder builder, object[] arguments)
-        {
-            ArgumentUtils.Min("echo", arguments, 1);
-            foreach (var arg in arguments)
-            {
-                builder.Append(arg);
-            }
+            sequence.ExecuteCommand(Convert.ToString(sequence.Resolve(arguments[0]), CultureInfo.InvariantCulture), arguments.ToList().GetRange(1, arguments.Length - 1).ToArray());
         }
 
         [SequenceFunction("noop")]

@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Antlr4 Include="Parser\Spin.g4">
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace>Spin.Parser</CustomToolNamespace>
+    </Antlr4>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Antlr4" Version="4.6.4" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <Antlr4UseCSharpGenerator>True</Antlr4UseCSharpGenerator>
+    <AssemblyName>Spin</AssemblyName>
+    <PackageId>xbloom.Spin</PackageId>
+    <Authors>Sam Bloomberg</Authors>
+    <Company />
+    <Copyright>Copyright (c) 2017 Sam Bloomberg</Copyright>
+    <PackageLicenseUrl>https://github.com/redxdev/Spin/blob/master/LICENSE.md</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/redxdev/Spin</PackageProjectUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RepositoryUrl>https://github.com/redxdev/Spin</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <Description>Spin is a simple library for dialogue trees designed for use with games. It includes a human-readable file format for writing dialogue, and an extendable interpreter for executing them.</Description>
+    <PackageReleaseNotes>Renamed library to "Spin".</PackageReleaseNotes>
+    <PackageTags>dialogue gamedev</PackageTags>
+    <Version>0.1.0</Version>
+    <FileVersion>0.1.0</FileVersion>
+  </PropertyGroup>
+
+</Project>

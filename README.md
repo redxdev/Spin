@@ -1,6 +1,6 @@
-# Thread Dialogue System
+# Spin Dialogue System
 
-Thread is a simple library for dialogue trees. It includes a human-readable file format for
+Spin is a simple library for dialogue trees. It includes a human-readable file format for
 dialogue trees, and an interpreter for that format.
 
 The reference interpreter is in C# and should work anywhere C# 7 can be used.
@@ -8,7 +8,7 @@ The reference interpreter is in C# and should work anywhere C# 7 can be used.
 Inspired by [Yarn](https://github.com/InfiniteAmmoInc/Yarn), with a focus on easily editing files
 without having a dedicated editor.
 
-Available on [NuGet](https://www.nuget.org/packages/xbloom.Thread/)
+Available on [NuGet](https://www.nuget.org/packages/xbloom.Spin/)
 
 ## Quick Example
 
@@ -33,9 +33,9 @@ Available on [NuGet](https://www.nuget.org/packages/xbloom.Thread/)
     You picked option 2!
     +
 
-_Note: `opt` is not a built-in command. Thread lets you define your own commands, and here we assume `opt` defines an option for a piece of dialogue._
+_Note: `opt` is not a built-in command. Spin lets you define your own commands, and here we assume `opt` defines an option for a piece of dialogue._
 
-A more complex example can be found at [ThreadExample/sequences/example.ths](https://github.com/redxdev/Thread/blob/master/ThreadExample/sequences/example.ths).
+A more complex example can be found at [SpinExample/sequences/example.ths](https://github.com/redxdev/Spin/blob/master/SpinExample/sequences/example.ths).
 
 ## Terminology
 
@@ -45,12 +45,12 @@ A more complex example can be found at [ThreadExample/sequences/example.ths](htt
 
 ## Extending
 
-_Thread_ has a number of places that can be extended.
+_Spin_ has a number of places that can be extended.
 
 ### Variable Backend
 
-_Thread_ supports storing and retrieving values in a dialogue sequence. Since you may want to access data outside _Thread_ itself (i.e. data from your game),
-you can swap out the storage mechanism that is used in a sequence. The default backend that ships with _Thread_ is a simple `Dictionary<string, object>`, but
+_Spin_ supports storing and retrieving values in a dialogue sequence. Since you may want to access data outside _Spin_ itself (i.e. data from your game),
+you can swap out the storage mechanism that is used in a sequence. The default backend that ships with _Spin_ is a simple `Dictionary<string, object>`, but
 it can easily be replaced with the `IVariableBackend` interface.
 
 ### Document Loader
@@ -59,7 +59,7 @@ The mechanism used to load and parse documents is also replacable via the `IDocu
 
 ### Commands, blocks, and functions
 
-Commands, blocks, and functions can all be added to a sequence. Attributes are used to mark methods that _Thread_ can use. See the following classes:
+Commands, blocks, and functions can all be added to a sequence. Attributes are used to mark methods that _Spin_ can use. See the following classes:
 
 * `Sequence.ExpressionBlock` and `SequenceBlockAttribute`
 * `Sequence.ExpressionFunction` and `SequenceFunctionAttribute`
@@ -105,6 +105,6 @@ Since expressions just work with text, you can manipulate commands however you w
 
 ## Credits
 
-Thread was created by [Sam Bloomberg](https://xbloom.io).
+Spin was created by [Sam Bloomberg](https://xbloom.io).
 
-Thread makes use of [ANTLR 4](https://github.com/antlr/antlr4) for parser and lexer generation.
+Spin makes use of [ANTLR 4](https://github.com/antlr/antlr4) for parser and lexer generation.

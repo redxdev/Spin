@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
@@ -17,6 +16,19 @@
 
   <PropertyGroup>
     <Antlr4UseCSharpGenerator>True</Antlr4UseCSharpGenerator>
+    <AssemblyName>Thread</AssemblyName>
+    <PackageId>xbloom.Thread</PackageId>
+    <Authors>Sam Bloomberg</Authors>
+    <Company />
+    <Copyright>Copyright (c) 2017 Sam Bloomberg</Copyright>
+    <PackageLicenseUrl>https://github.com/redxdev/Thread/blob/master/LICENSE.md</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/redxdev/Thread</PackageProjectUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RepositoryUrl>https://github.com/redxdev/Thread</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <Description>Thread is a simple library for dialogue trees designed for use with games. It includes a human-readable file format for writing dialogue, and an extendable interpreter for executing them.</Description>
+    <PackageReleaseNotes>Initial release.</PackageReleaseNotes>
+    <PackageTags>dialogue gamedev</PackageTags>
   </PropertyGroup>
 
 </Project>

@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Spin.Utility;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Spin.Parser
 {
@@ -19,7 +20,17 @@ namespace Spin.Parser
             {
                 foreach (var element in SubElements)
                 {
+                    int initialLength = builder.Length;
                     element.Execute(sequence, builder);
+
+                    if (initialLength != builder.Length)
+                        continue;
+
+                    var matcher = new Regex("\\s");
+                    while (builder.EndsWith(matcher))
+                    {
+                        --builder.Length;
+                    }
                 }
             }
         }

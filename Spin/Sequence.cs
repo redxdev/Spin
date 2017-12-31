@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Spin.Attributes;
+using Spin.Parser;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
-using Spin.Attributes;
-using Spin.Parser;
 
 namespace Spin
 {
@@ -108,7 +107,10 @@ namespace Spin
         public string ExecuteCurrentLine()
         {
             if (!CurrentLine.HasValue)
-                return string.Empty;
+            {
+                _currentText = string.Empty;
+                return _currentText;
+            }
 
             _currentText = ExecuteExpression(CurrentLine.Value.PrimaryElement);
 

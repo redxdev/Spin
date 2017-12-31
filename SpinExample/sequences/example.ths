@@ -61,6 +61,7 @@ Expressions are inline markup in dialogue that allows the interpreter to change 
 For example, this bit of dialogue has set a variable "foo" to true. The next piece of dialogue actually links
 back to here, but this line will change as a result.
 {/}
+
 {ifset $foo}
 Foo is now \"{$foo}\".
 {/}
@@ -69,11 +70,18 @@ Foo is now \"{$foo}\".
 > {ifunset $foo}set $foo "Hello World!"; next expr1{/}
 
 +expr2
-Expressions can also be used in commands themselves. Technically, expressions just modify text. The expression parser
-is run before anything happens, and then the result is fed either to the command parser or output as a dialogue line.
+A quick note about expressions and whitespace - an expression function or block that doesn't generate any text will
+consume all of the whitespace before it. This means that (for example) an "if" block that was set off from the rest of
+the text won't create newlines if it isn't used. An example of that is {{noop}} here, where a function has been placed in
+this text that won't emit any new text, but due to this rule there also won't be any weird spacing.
 +> next expr3
 
 +expr3
+Expressions can also be used in commands themselves. Technically, expressions just modify text. The expression parser
+is run before anything happens, and then the result is fed either to the command parser or output as a dialogue line.
++> next expr4
+
++expr4
 Expressions can also contain functions. Functions use a {{noop}} different syntax, but can be used for a variety
 of things.
 +> next load1

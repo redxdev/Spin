@@ -18,7 +18,7 @@
 	public static int IGNORED_CHANNEL = 1;
 	// This is not ideal, but in certain situations we actually do want to be able to
 	// parse through whitespace.
-	protected void handleIgnoredChannel(List<IExpressionElement> elements, bool trim) {
+	protected void handleIgnoredChannel(List<IExpressionElement> elements) {
 		int idx = CurrentToken.TokenIndex - 1;
 		StringBuilder builder = new StringBuilder();
 		var oldTokens = new List<IToken>();
@@ -41,16 +41,7 @@
 			builder.Append(token.Text);
 		}
 
-		var str = builder.ToString();
-		if (trim)
-		{
-			if (str.Contains("\t"))
-				str = "\t";
-			else if (str.Contains(" "))
-				str = " ";
-		}
-
-		elements.Add(new TextElement(str));
+		elements.Add(new TextElement(builder.ToString()));
 	}
 }
 
@@ -112,15 +103,15 @@ command_list returns [List<IExpressionElement> elements]
 //
 
 expression returns [CollectionElement element]
-	locals [List<IExpressionElement> subElements, bool trim, bool previousWasText]
-	: {$subElements = new List<IExpressionElement>(); $element = new CollectionElement($subElements); handleIgnoredChannel($subElements, false);}
+	locals [List<IExpressionElement> subElements]
+	: {$subElements = new List<IExpressionElement>(); $element = new CollectionElement($subElements); handleIgnoredChannel($subElements);}
 	(	
-		(	expression_function {$subElements.Add($expression_function.element); $trim = true; $previousWasText = false;}
-		|	expression_variable {$subElements.Add($expression_variable.element); $trim = true; $previousWasText = false;}
-		|	expression_block	{$subElements.Add($expression_block.element); $trim = true; $previousWasText = false;}
-		|	any_text			{$subElements.Add(new TextElement($any_text.value)); $trim = $previousWasText; $previousWasText = true;}
+		(	expression_function {$subElements.Add($expression_function.element);}
+		|	expression_variable {$subElements.Add($expression_variable.element);}
+		|	expression_block	{$subElements.Add($expression_block.element);}
+		|	any_text			{$subElements.Add(new TextElement($any_text.value));}
 		)
-		{handleIgnoredChannel($subElements, $trim);}
+		{handleIgnoredChannel($subElements);}
 	)+
 	;
 

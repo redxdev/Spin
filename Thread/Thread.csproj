@@ -27,9 +27,10 @@
     <RepositoryUrl>https://github.com/redxdev/Thread</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <Description>Thread is a simple library for dialogue trees designed for use with games. It includes a human-readable file format for writing dialogue, and an extendable interpreter for executing them.</Description>
-    <PackageReleaseNotes>Added netframework45</PackageReleaseNotes>
+    <PackageReleaseNotes>Added reset functionality to the variable backend.</PackageReleaseNotes>
     <PackageTags>dialogue gamedev</PackageTags>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
+    <FileVersion>1.0.2.0</FileVersion>
   </PropertyGroup>
 
 </Project>

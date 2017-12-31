@@ -9,6 +9,7 @@ namespace Thread
         bool ContainsVariable(string name);
         bool TryGetVariable(string name, out object value);
         void SetVariable(string name, object value);
+        void Reset();
     }
 
     public class DictionaryBackend : IVariableBackend
@@ -28,6 +29,11 @@ namespace Thread
         public void SetVariable(string name, object value)
         {
             Variables[name] = value;
+        }
+
+        public void Reset()
+        {
+            Variables.Clear();
         }
     }
 }

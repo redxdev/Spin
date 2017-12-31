@@ -38,5 +38,12 @@ namespace Thread.Library
             ArgumentUtils.Count("sequence", arguments, 1);
             sequence.LoadAndStartDocument(Convert.ToString(arguments[0], CultureInfo.InvariantCulture));
         }
+
+        [SequenceCommand("reset")]
+        public static void Reset(Sequence sequence, object[] arguments)
+        {
+            ArgumentUtils.Count("reset", arguments, 0);
+            sequence.ResetVariables();
+        }
     }
 }

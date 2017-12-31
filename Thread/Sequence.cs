@@ -55,6 +55,11 @@ namespace Thread
                 CurrentDocument = null;
         }
 
+        public void ResetVariables()
+        {
+            _backend.Reset();
+        }
+
         public void LoadAndStartDocument(string path)
         {
             if (_loader == null)

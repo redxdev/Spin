@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Spin.Builder;
 
 namespace Spin.Parser
 {
     public class NoopElement : IExpressionElement
     {
-        public void Execute(Sequence sequence, StringBuilder builder)
+        public void Execute(Sequence sequence, LineBuilder builder)
         {
         }
     }

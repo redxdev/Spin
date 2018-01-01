@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Spin.Builder;
 
 namespace Spin.Parser
 {
@@ -13,9 +11,9 @@ namespace Spin.Parser
             Text = text;
         }
 
-        public void Execute(Sequence sequence, StringBuilder builder)
+        public void Execute(Sequence sequence, LineBuilder builder)
         {
-            builder.Append(Text);
+            builder.PushString(Text);
         }
         
         public override string ToString()

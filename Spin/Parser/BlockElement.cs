@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Spin.Builder;
+using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Spin.Parser
 {
@@ -17,7 +17,7 @@ namespace Spin.Parser
             SubExpression = subExpression;
         }
 
-        public void Execute(Sequence sequence, StringBuilder builder)
+        public void Execute(Sequence sequence, LineBuilder builder)
         {
             sequence.ExecuteBlock(Name, builder, SubExpression, Arguments.ToArray());
         }

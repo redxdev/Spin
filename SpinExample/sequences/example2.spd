@@ -9,5 +9,5 @@ may not want to for your own sanity.
 In addition to loading a sequence normally, we are also able to specify the specific piece of
 dialogue to use in that sequence file just by adding a "next" command.
 +
-> seq "sequences/example3.ths"
+> seq "sequences/example3.spd"
 > next load3

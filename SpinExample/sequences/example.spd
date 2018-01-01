@@ -89,4 +89,4 @@ of things.
 +load1
 Sequence files are always loaded as a whole. In order to break up sequences, you can split a single logical
 sequence into files, or share files between sequences. To do this, you simply have to call the "seq" command.
-+> seq "sequences/example2.ths"
++> seq "sequences/example2.spd"

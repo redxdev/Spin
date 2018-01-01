@@ -4,16 +4,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Spin.Builder;
 
 namespace Spin
 {
     public class Sequence
     {
-        public delegate void ExpressionBlock(Sequence sequence, StringBuilder builder, IExpressionElement subElement, object[] arguments);
-        public delegate void ExpressionFunction(Sequence sequence, StringBuilder builder, object[] arguments);
+        public delegate void ExpressionBlock(Sequence sequence, LineBuilder builder, IExpressionElement subElement, object[] arguments);
+        public delegate void ExpressionFunction(Sequence sequence, LineBuilder builder, object[] arguments);
         public delegate void CommandFunction(Sequence sequence, object[] arguments);
 
-        private string _currentText = null;
+        private LineBuilder _currentText = null;
         public Line? CurrentLine { get; private set; }
         public Line? NextLine { get; private set; }
         public SpinDocument CurrentDocument { get; private set; }
@@ -78,7 +79,7 @@ namespace Spin
                 foreach (var expr in CurrentDocument.GetInitialCommands())
                 {
                     ParsedCommand[] command;
-                    var str = ExecuteExpression(expr);
+                    var str = ExecuteExpression(expr).BuildString();
                     if (string.IsNullOrWhiteSpace(str))
                         continue;
 
@@ -104,11 +105,11 @@ namespace Spin
             return CurrentLine;
         }
 
-        public string ExecuteCurrentLine()
+        public LineBuilder ExecuteCurrentLine()
         {
             if (!CurrentLine.HasValue)
             {
-                _currentText = string.Empty;
+                _currentText = null;
                 return _currentText;
             }
 
@@ -117,7 +118,7 @@ namespace Spin
             foreach (var expr in CurrentLine.Value.CommandElements)
             {
                 ParsedCommand[] command;
-                var str = ExecuteExpression(expr);
+                var str = ExecuteExpression(expr).BuildString();
                 if (string.IsNullOrWhiteSpace(str))
                     continue;
 
@@ -133,29 +134,7 @@ namespace Spin
                 ExecuteCommand(command);
             }
 
-            return TrimText(_currentText);
-        }
-
-        public string TrimText(string input)
-        {
-            if (AutomaticWhitespaceTrim)
-                input = input.Trim();
-
-            if (AutomaticLineBreaks)
-            {
-                input = string.Join("", input.Split('\n')
-                    .Select(line =>
-                    {
-                        if (!string.IsNullOrWhiteSpace(line))
-                        {
-                            return line.Trim() + " ";
-                        }
-
-                        return "\n";
-                    }));
-            }
-
-            return input;
+            return _currentText;
         }
 
         public void SetNextLine(string name)
@@ -183,15 +162,14 @@ namespace Spin
             _commands.Add(name, func);
         }
 
-        public string ExecuteExpression(IExpressionElement expression, bool trimResult = true)
+        public LineBuilder ExecuteExpression(IExpressionElement expression)
         {
-            var builder = new StringBuilder();
+            var builder = new LineBuilder();
             expression.Execute(this, builder);
-            var result = builder.ToString();
-            return trimResult ? result.Trim() : result;
+            return builder;
         }
 
-        public void ExecuteBlock(string name, StringBuilder builder, IExpressionElement subElement, params object[] arguments)
+        public void ExecuteBlock(string name, LineBuilder builder, IExpressionElement subElement, params object[] arguments)
         {
             if (!_blocks.TryGetValue(name, out ExpressionBlock block))
             {
@@ -201,7 +179,7 @@ namespace Spin
             block(this, builder, subElement, arguments);
         }
 
-        public void ExecuteFunction(string name, StringBuilder builder, params object[] arguments)
+        public void ExecuteFunction(string name, LineBuilder builder, params object[] arguments)
         {
             if (!_functions.TryGetValue(name, out ExpressionFunction func))
             {
@@ -271,21 +249,21 @@ namespace Spin
                 var attrs = method.GetCustomAttributes(typeof(SequenceBlockAttribute), false);
                 foreach (var attr in attrs.Select(a => a as SequenceBlockAttribute).Where(a => a != null))
                 {
-                    var del = (ExpressionBlock)method.CreateDelegate(typeof(ExpressionBlock), obj);
+                    var del = (ExpressionBlock)method.CreateDelegate(typeof(ExpressionBlock), method.IsStatic ? null : obj);
                     AddBlock(attr.Name, del);
                 }
 
                 attrs = method.GetCustomAttributes(typeof(SequenceFunctionAttribute), false);
                 foreach (var attr in attrs.Select(a => a as SequenceFunctionAttribute).Where(a => a != null))
                 {
-                    var del = (ExpressionFunction)method.CreateDelegate(typeof(ExpressionFunction), obj);
+                    var del = (ExpressionFunction)method.CreateDelegate(typeof(ExpressionFunction), method.IsStatic ? null : obj);
                     AddFunction(attr.Name, del);
                 }
 
                 attrs = method.GetCustomAttributes(typeof(SequenceCommandAttribute), false);
                 foreach (var attr in attrs.Select(a => a as SequenceCommandAttribute).Where(a => a != null))
                 {
-                    var del = (CommandFunction)method.CreateDelegate(typeof(CommandFunction), obj);
+                    var del = (CommandFunction)method.CreateDelegate(typeof(CommandFunction), method.IsStatic ? null : obj);
                     AddCommand(attr.Name, del);
                 }
             }

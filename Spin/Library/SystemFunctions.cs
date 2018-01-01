@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using Spin.Attributes;
+using Spin.Builder;
 using Spin.Utility;
 
 namespace Spin.Library
@@ -13,18 +14,18 @@ namespace Spin.Library
         [SequenceFunction("value")]
         [SequenceFunction("e")]
         [SequenceFunction("echo")]
-        public static void Value(Sequence sequence, StringBuilder builder, object[] arguments)
+        public static void Value(Sequence sequence, LineBuilder builder, object[] arguments)
         {
             ArgumentUtils.Min("value", arguments, 1);
             foreach (var arg in arguments.Select(o => sequence.Resolve(o)))
             {
-                builder.Append(Convert.ToString(arg, CultureInfo.InvariantCulture));
+                builder.PushString(Convert.ToString(arg, CultureInfo.InvariantCulture));
             }
         }
 
         [SequenceFunction("s")]
         [SequenceFunction("set")]
-        public static void Set(Sequence sequence, StringBuilder builder, object[] arguments)
+        public static void Set(Sequence sequence, LineBuilder builder, object[] arguments)
         {
             ArgumentUtils.Count("set", arguments, 2);
             if (arguments[0] is VariableRef vref)
@@ -35,6 +36,8 @@ namespace Spin.Library
             {
                 throw new SequenceVariableException($"Expected a variable for {{{{set}}}}, found {arguments[0]}");
             }
+
+            builder.PushEmpty();
         }
 
         /// <summary>
@@ -42,16 +45,18 @@ namespace Spin.Library
         /// </summary>
         [SequenceFunction("c")]
         [SequenceFunction("cmd")]
-        public static void Command(Sequence sequence, StringBuilder builder, object[] arguments)
+        public static void Command(Sequence sequence, LineBuilder builder, object[] arguments)
         {
             ArgumentUtils.Min("cmd", arguments, 1);
             sequence.ExecuteCommand(Convert.ToString(sequence.Resolve(arguments[0]), CultureInfo.InvariantCulture), arguments.ToList().GetRange(1, arguments.Length - 1).ToArray());
+            builder.PushEmpty();
         }
 
         [SequenceFunction("noop")]
-        public static void Noop(Sequence sequence, StringBuilder builder, object[] arguments)
+        public static void Noop(Sequence sequence, LineBuilder builder, object[] arguments)
         {
             ArgumentUtils.Count("noop", arguments, 0);
+            builder.PushEmpty();
         }
     }
 }

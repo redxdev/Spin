@@ -13,12 +13,12 @@ namespace SpinExample
 
             try
             {
-                sequence.LoadAndStartDocument("sequences/example.ths");
+                sequence.LoadAndStartDocument("sequences/example.spd");
                 while (sequence.StartNextLine().HasValue)
                 {
                     Console.WriteLine("---");
 
-                    var text = sequence.ExecuteCurrentLine();
+                    var text = sequence.ExecuteCurrentLine().BuildString();
                     Console.WriteLine(text);
                     Console.WriteLine("Press enter to continue...");
                     Console.ReadLine();

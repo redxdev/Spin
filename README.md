@@ -10,6 +10,11 @@ without having a dedicated editor.
 
 Available on [NuGet](https://www.nuget.org/packages/xbloom.Spin/)
 
+## Documentation
+
+* [Integration Guide](https://github.com/redxdev/Spin/tree/master/Docs/Integration.md) - start here if you want to integrate Spin into your game!
+* [Spin Language API](https://github.com/redxdev/Spin/tree/master/Docs/API)
+
 ## Quick Example
 
     # Example Document

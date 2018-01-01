@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System;
+using System.Globalization;
+using Spin.Builder;
 
 namespace Spin.Parser
 {
@@ -11,9 +13,9 @@ namespace Spin.Parser
             Variable = vref;
         }
 
-        public void Execute(Sequence sequence, StringBuilder builder)
+        public void Execute(Sequence sequence, LineBuilder builder)
         {
-            builder.Append(sequence.GetVariable(Variable));
+            builder.PushString(Convert.ToString(sequence.GetVariable(Variable), CultureInfo.InvariantCulture));
         }
     }
 }

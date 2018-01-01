@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Spin.Builder;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -15,7 +16,7 @@ namespace Spin.Parser
             Arguments = arguments;
         }
 
-        public void Execute(Sequence sequence, StringBuilder builder)
+        public void Execute(Sequence sequence, LineBuilder builder)
         {
             sequence.ExecuteFunction(Name, builder, Arguments.ToArray());
         }

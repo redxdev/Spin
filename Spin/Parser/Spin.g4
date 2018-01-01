@@ -159,7 +159,7 @@ boolean_value returns [bool value]
 	;
 
 variable_value returns [VariableRef value]
-	:	VAR_BEGIN IDENT {$value = new VariableRef($IDENT.text);}
+	:	VARIABLE {$value = new VariableRef($VARIABLE.text.Substring(1));}
 	;
 
 any_text returns [string value]
@@ -173,7 +173,7 @@ any_text returns [string value]
 	;
 
 not_special_block
-	:	~(BEGIN_BLOCK | LINE_DELIM | ESCAPE | COMMAND_BEGIN)
+	:	~(BEGIN_BLOCK | END_BLOCK | LINE_DELIM | ESCAPE | COMMAND_BEGIN)
 	;
 
 // Lexer
@@ -190,8 +190,7 @@ ESCAPE
 	;
 
 STRING
-	:	('"' (~('\n' | '\r'))*? '"')
-	|	('\'' (~('\n' | '\r'))*? '\'')
+	:	('"' (ESCAPE | ~('\n' | '\r' | '$' | '{' | '}'))*? '"')
 	;
 
 LINE_DELIM
@@ -210,8 +209,8 @@ SLASH
 	:	'/'
 	;
 
-VAR_BEGIN
-	:	'$'
+VARIABLE
+	:	'$' IDENT
 	;
 
 BEGIN_BLOCK

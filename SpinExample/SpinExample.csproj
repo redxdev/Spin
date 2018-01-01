@@ -50,13 +50,13 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-    <None Include="sequences\example.ths">
+    <None Include="sequences\example.spd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="sequences\example2.ths">
+    <None Include="sequences\example2.spd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="sequences\example3.ths">
+    <None Include="sequences\example3.spd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

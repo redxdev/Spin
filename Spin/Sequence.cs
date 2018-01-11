@@ -146,6 +146,16 @@ namespace Spin
         {
             NextLine = line;
         }
+
+        public void AddDataLibrary(DataLibrary library)
+        {
+            foreach (var entry in library.Blocks)
+                AddBlock(entry.Key, entry.Value);
+            foreach (var entry in library.Functions)
+                AddFunction(entry.Key, entry.Value);
+            foreach (var entry in library.Commands)
+                AddCommand(entry.Key, entry.Value);
+        }
         
         public void AddBlock(string name, ExpressionBlock func)
         {
@@ -211,67 +221,10 @@ namespace Spin
         {
             command.Execute(this);
         }
-        
-        /// <summary>
-        /// Registers all static blocks, functions, and commands within an assembly.
-        /// </summary>
-        /// <param name="assembly">The assembly.</param>
-        public void RegisterAssembly(Assembly assembly)
-        {
-            foreach (var type in assembly.DefinedTypes)
-            {
-                RegisterType(type);
-            }
-        }
-        
-        /// <summary>
-        /// Registers all blocks, functions, and commands within an object.
-        /// </summary>
-        /// <param name="obj">The object.</param>
-        public void RegisterObject(object obj)
-        {
-            RegisterType(obj.GetType().GetTypeInfo(), obj);
-        }
-
-        // Registers a single type, optionally bound to a specific object.
-        /// <summary>
-        /// Registers all blocks, functions, and commands for single type, optionally bound to a specific object.
-        /// </summary>
-        /// <param name="type">The type of the object.</param>
-        /// <param name="obj">The object to bind to. If null, only static methods will be registered.</param>
-        public void RegisterType(TypeInfo type, object obj = null)
-        {
-            foreach (var method in type.GetMethods())
-            {
-                if (obj == null && !method.IsStatic)
-                    continue;
-
-                var attrs = method.GetCustomAttributes(typeof(SequenceBlockAttribute), false);
-                foreach (var attr in attrs.Select(a => a as SequenceBlockAttribute).Where(a => a != null))
-                {
-                    var del = (ExpressionBlock)method.CreateDelegate(typeof(ExpressionBlock), method.IsStatic ? null : obj);
-                    AddBlock(attr.Name, del);
-                }
-
-                attrs = method.GetCustomAttributes(typeof(SequenceFunctionAttribute), false);
-                foreach (var attr in attrs.Select(a => a as SequenceFunctionAttribute).Where(a => a != null))
-                {
-                    var del = (ExpressionFunction)method.CreateDelegate(typeof(ExpressionFunction), method.IsStatic ? null : obj);
-                    AddFunction(attr.Name, del);
-                }
-
-                attrs = method.GetCustomAttributes(typeof(SequenceCommandAttribute), false);
-                foreach (var attr in attrs.Select(a => a as SequenceCommandAttribute).Where(a => a != null))
-                {
-                    var del = (CommandFunction)method.CreateDelegate(typeof(CommandFunction), method.IsStatic ? null : obj);
-                    AddCommand(attr.Name, del);
-                }
-            }
-        }
 
         public void RegisterStandardLibrary()
         {
-            RegisterAssembly(this.GetType().Assembly);
+            AddDataLibrary(DataLibrary.StandardLibrary);
         }
 
         public object GetVariable(VariableRef vref)

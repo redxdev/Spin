@@ -293,11 +293,15 @@ public static void MyBlock(Sequence sequence, LineBuilder builder, IExpressionEl
 
 Registering your own methods should generally be done right before or after registering the standard library on a sequence.
 
-To register all static methods in an entire assembly, use `Sequence.RegisterAssembly()`. For example, if your game is a single
+Registering generally involves creating a `DataLibary` object, which is then added to the sequence. `DataLibrary` objects can be reused in multiple sequences.
+
+To register all static methods in an entire assembly, use `DataLibrary.RegisterAssembly()`. For example, if your game is a single
 project:
 
 ```csharp
-sequence.RegisterAssembly(GetType().Assembly);
+var lib = new DataLibrary();
+lib.RegisterAssembly(GetType().Assembly);
+sequence.AddDataLibrary(lib);
 ```
 
 This will register all methods marked with the appropriate attributes in your assembly.
@@ -305,13 +309,13 @@ This will register all methods marked with the appropriate attributes in your as
 To register static methods from a specific type:
 
 ```csharp
-sequence.RegisterType(typeof(MyLibrary));
+lib.RegisterType(typeof(MyLibrary));
 ```
 
 To register methods on a specific object (this will also register static methods):
 
 ```csharp
-sequence.RegisterObject(myObject);
+lib.RegisterObject(myObject);
 ```
 
-If you want to register methods manually, you may use `AddBlock()`, `AddFunction()`, and `AddCommand()` on the `Sequence` object.
+If you want to register methods manually, you may use `AddBlock()`, `AddFunction()`, and `AddCommand()` on the `DataLibrary` or `Sequence` objects.

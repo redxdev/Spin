@@ -22,7 +22,7 @@ namespace Spin.Utility
         public static void Between(string name, object[] args, int min, int max)
         {
             if (max <= min)
-                throw new ArgumentException($"Expected min < max, got {min} and {max}");
+                throw new SequenceArgumentException($"Expected min < max, got {min} and {max}");
 
             if (min == 0 && args == null)
                 return;

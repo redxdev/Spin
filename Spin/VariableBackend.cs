@@ -4,6 +4,9 @@ using System.Text;
 
 namespace Spin
 {
+    /// <summary>
+    /// Interface for storing and retrieving variables within a sequence.
+    /// </summary>
     public interface IVariableBackend
     {
         bool ContainsVariable(string name);
@@ -12,6 +15,9 @@ namespace Spin
         void Reset();
     }
 
+    /// <summary>
+    /// Simple dictionary-based local variable storage.
+    /// </summary>
     public class DictionaryBackend : IVariableBackend
     {
         public Dictionary<string, object> Variables { get; set; } = new Dictionary<string, object>();

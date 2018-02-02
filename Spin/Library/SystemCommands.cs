@@ -5,6 +5,9 @@ using Spin.Utility;
 
 namespace Spin.Library
 {
+    /// <summary>
+    /// System library commands.
+    /// </summary>
     public static class SystemCommands
     {
         [SequenceCommand("s")]

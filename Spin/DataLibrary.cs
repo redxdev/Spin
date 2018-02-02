@@ -7,6 +7,13 @@ using Spin.Attributes;
 
 namespace Spin
 {
+    /// <summary>
+    /// Contains a set of blocks, functions, and commands that can be reused in multiple sequences if desired.
+    /// </summary>
+    /// <remarks>
+    /// When initializing sequences, using a single <see cref="DataLibrary"/> and loading an assembly once is much
+    /// quicker than loading an assembly multiple times.
+    /// </remarks>
     public class DataLibrary
     {
         public static readonly DataLibrary StandardLibrary = DataLibrary.FromAssembly(typeof(DataLibrary).Assembly);
@@ -71,8 +78,7 @@ namespace Spin
         {
             RegisterType(obj.GetType().GetTypeInfo(), obj);
         }
-
-        // Registers a single type, optionally bound to a specific object.
+        
         /// <summary>
         /// Registers all blocks, functions, and commands for single type, optionally bound to a specific object.
         /// </summary>

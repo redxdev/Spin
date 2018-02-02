@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 using Spin.Attributes;
 using Spin.Builder;
 using Spin.Parser;
@@ -9,11 +8,11 @@ using Spin.Utility;
 
 namespace Spin.Library
 {
+    /// <summary>
+    /// System library blocks.
+    /// </summary>
     public static class SystemBlocks
     {
-        /// <summary>
-        /// Hides the output of any sub-expressions. Sub-expressions will still be run.
-        /// </summary>
         [SequenceBlock("h")]
         [SequenceBlock("hide")]
         public static void Hide(Sequence sequence, LineBuilder builder, IExpressionElement subElement, object[] arguments)
@@ -23,7 +22,7 @@ namespace Spin.Library
             var subBuilder = new LineBuilder();
             subElement.Execute(sequence, subBuilder);
         }
-
+        
         [SequenceBlock("if")]
         public static void If(Sequence sequence, LineBuilder builder, IExpressionElement subElement, object[] arguments)
         {
@@ -40,7 +39,7 @@ namespace Spin.Library
 
             subElement.Execute(sequence, builder);
         }
-
+        
         [SequenceBlock("ifnot")]
         public static void IfNot(Sequence sequence, LineBuilder builder, IExpressionElement subElement, object[] arguments)
         {

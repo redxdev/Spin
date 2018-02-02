@@ -4,11 +4,17 @@ using Spin.Parser;
 
 namespace Spin
 {
+    /// <summary>
+    /// Interface for loading documents.
+    /// </summary>
     public interface IDocumentLoader
     {
         SpinDocument LoadDocument(string path);
     }
 
+    /// <summary>
+    /// A simple filesystem document loader.
+    /// </summary>
     public class FileDocumentLoader : IDocumentLoader
     {
         public SpinDocument LoadDocument(string path)

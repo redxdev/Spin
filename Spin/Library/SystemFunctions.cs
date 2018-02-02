@@ -8,6 +8,9 @@ using Spin.Utility;
 
 namespace Spin.Library
 {
+    /// <summary>
+    /// System library functions.
+    /// </summary>
     public static class SystemFunctions
     {
         [SequenceFunction("v")]

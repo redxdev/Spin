@@ -5,6 +5,9 @@ using Spin.Parser;
 
 namespace Spin
 {
+    /// <summary>
+    /// A collection of lines and initialization commands.
+    /// </summary>
     public class SpinDocument
     {
         private Dictionary<string, Line> _lines = new Dictionary<string, Line>();
